@@ -1,4 +1,5 @@
 import streamlit as st
+from io import StringIO
 from pprint import pprint
 import sqlite3
 from coverage.numbits import register_sqlite_functions
@@ -7,66 +8,76 @@ import os
 import argparse
 import pathlib
 
-uploaded_file = st.file_uploader("Choose a file")
+@st.cache
+def _upload_file():
+    uploaded_file = st.file_uploader("Choose a file")
+    return uploaded_file
 
-database = uploaded_file
-commit = database.split('_')[1].split('.')[0]
+uploaded_file = _upload_file()
+if uploaded_file is not None:
 
-st.text(f'Using commit: {commit}')
+    commit = uploaded_file.name.split('_')[1].split('.')[0]
 
-conn = sqlite3.connect(database)
-register_sqlite_functions(conn)
-c = conn.cursor()
+    bytes_data = uploaded_file.getvalue()
+    with open('.coverage', 'wb') as fd:
+        fd.write(bytes_data)
+    database = '.coverage'
 
-def fixup_path(file):
-    return f'/kaggle/working/pandas-dev/{file}'
+    st.text(f'Using commit: {commit}')
 
-def unfixup_path(file):
-    return file.replace('/kaggle/working/pandas-dev/', '')
+    conn = sqlite3.connect(database)
+    register_sqlite_functions(conn)
+    c = conn.cursor()
 
-filenames_query = (
-        """
-        select distinct file.path
-        from file
-        """
-)
+    def fixup_path(file):
+        return f'/kaggle/working/pandas-dev/{file}'
 
-c.execute(filenames_query)
-filenames = c.fetchall()
-filenames = sorted(unfixup_path(i[0]) for i in filenames)
+    def unfixup_path(file):
+        return file.replace('/kaggle/working/pandas-dev/', '')
 
-file = st.selectbox('filename', filenames)
+    filenames_query = (
+            """
+            select distinct file.path
+            from file
+            """
+    )
 
-linenos_query = (
-        """
-        select distinct arc.tono
-        from file, arc, context
-        where arc.file_id = file.id
-        and arc.context_id = context.id
-        and file.path = ?
-        and arc.tono > 0
-        and context.context != ''
-        """
-)
+    c.execute(filenames_query)
+    filenames = c.fetchall()
+    filenames = sorted(unfixup_path(i[0]) for i in filenames)
 
-c.execute(linenos_query, (fixup_path(file),))
-linenos = c.fetchall()
-linenos = sorted(lineno[0] for lineno in linenos)
+    file = st.selectbox('filename', filenames)
 
-lineno = st.selectbox('line number', linenos)
+    linenos_query = (
+            """
+            select distinct arc.tono
+            from file, arc, context
+            where arc.file_id = file.id
+            and arc.context_id = context.id
+            and file.path = ?
+            and arc.tono > 0
+            and context.context != ''
+            """
+    )
 
-QUERY = (
-        """
-        select context.context
-        from arc, context, file
-        where arc.context_id = context.id
-        and arc.file_id = file.id
-        and arc.tono = ?
-        and file.path = ?
-        and context.context != ''
-        """
-)
+    c.execute(linenos_query, (fixup_path(file),))
+    linenos = c.fetchall()
+    linenos = sorted(lineno[0] for lineno in linenos)
 
-c.execute(QUERY, (lineno, fixup_path(file)))
-st.table({'test name': [i[0] for i in c.fetchall()]})
+    lineno = st.selectbox('line number', linenos)
+
+    QUERY = (
+            """
+            select context.context
+            from arc, context, file
+            where arc.context_id = context.id
+            and arc.file_id = file.id
+            and arc.tono = ?
+            and file.path = ?
+            and context.context != ''
+            """
+    )
+
+    c.execute(QUERY, (lineno, fixup_path(file)))
+    st.table({'test name': [i[0] for i in c.fetchall()]})
 
