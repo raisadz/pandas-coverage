@@ -7,7 +7,9 @@ import os
 import argparse
 import pathlib
 
-database = [i for i in os.listdir('.') if i.startswith('coverage_') and i.endswith('.db')][0]
+uploaded_file = st.file_uploader("Choose a file")
+
+database = uploaded_file
 commit = database.split('_')[1].split('.')[0]
 
 st.text(f'Using commit: {commit}')
