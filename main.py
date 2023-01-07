@@ -40,8 +40,11 @@ filenames_query = (
 c.execute(filenames_query)
 filenames = c.fetchall()
 filenames = sorted(unfixup_path(i[0]) for i in filenames)
+filenames = [i for i in filenames if '__init__' not in i]
 
 sidebar = st.sidebar
+
+sidebar.markdown("Using commit: a28cadbeb6f21da6c768b84473b3415e6efb3115")
 
 file = sidebar.selectbox('filename', filenames)
 
