@@ -531,19 +531,12 @@ class IndexOpsMixin(OpsMixin):
                 f"to_numpy() got an unexpected keyword argument '{bad_keys}'"
             )
 
-        if na_value is not lib.no_default:
-            values = self._values.copy()
-            values[np.asanyarray(self.isna())] = na_value
-        else:
-            values = self._values
-
-        result = np.asarray(values, dtype=dtype)
-
-        if copy and na_value is lib.no_default:
-            if np.shares_memory(self._values[:2], result[:2]):
-                # Take slices to improve performance of check
-                result = result.copy()
-
+        result = np.asarray(self._values, dtype=dtype)
+        # TODO(GH-24345): Avoid potential double copy
+        if copy or na_value is not lib.no_default:
+            result = result.copy()
+            if na_value is not lib.no_default:
+                result[np.asanyarray(self.isna())] = na_value
         return result
 
     @final

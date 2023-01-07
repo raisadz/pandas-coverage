@@ -1214,11 +1214,7 @@ class BinGrouper(BaseGrouper):
     @property
     def groupings(self) -> list[grouper.Grouping]:
         lev = self.binlabels
-        codes = self.group_info[0]
-        labels = lev.take(codes)
-        ping = grouper.Grouping(
-            labels, labels, in_axis=False, level=None, uniques=lev._values
-        )
+        ping = grouper.Grouping(lev, lev, in_axis=False, level=None)
         return [ping]
 
     def _aggregate_series_fast(self, obj: Series, func: Callable) -> NoReturn:

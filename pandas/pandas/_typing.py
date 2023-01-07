@@ -44,10 +44,6 @@ if TYPE_CHECKING:
     from pandas.core.dtypes.dtypes import ExtensionDtype
 
     from pandas import Interval
-    from pandas.arrays import (
-        DatetimeArray,
-        TimedeltaArray,
-    )
     from pandas.core.arrays.base import ExtensionArray
     from pandas.core.frame import DataFrame
     from pandas.core.generic import NDFrame
@@ -92,7 +88,6 @@ HashableT = TypeVar("HashableT", bound=Hashable)
 
 ArrayLike = Union["ExtensionArray", np.ndarray]
 AnyArrayLike = Union[ArrayLike, "Index", "Series"]
-TimeArrayLike = Union["DatetimeArray", "TimedeltaArray"]
 
 # scalars
 

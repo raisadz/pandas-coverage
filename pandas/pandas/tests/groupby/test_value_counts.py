@@ -56,8 +56,6 @@ def seed_df(seed_nans, n, m):
     )
 
     if seed_nans:
-        # Explicitly cast to float to avoid implicit cast when setting nan
-        frame["3rd"] = frame["3rd"].astype("float")
         frame.loc[1::11, "1st"] = np.nan
         frame.loc[3::17, "2nd"] = np.nan
         frame.loc[7::19, "3rd"] = np.nan
@@ -116,8 +114,7 @@ def test_series_groupby_value_counts(
     tm.assert_series_equal(left.sort_index(), right.sort_index())
 
 
-@pytest.mark.parametrize("utc", [True, False])
-def test_series_groupby_value_counts_with_grouper(utc):
+def test_series_groupby_value_counts_with_grouper():
     # GH28479
     df = DataFrame(
         {
@@ -134,9 +131,7 @@ def test_series_groupby_value_counts_with_grouper(utc):
         }
     ).drop([3])
 
-    df["Datetime"] = to_datetime(
-        df["Timestamp"].apply(lambda t: str(t)), utc=utc, unit="s"
-    )
+    df["Datetime"] = to_datetime(df["Timestamp"].apply(lambda t: str(t)), unit="s")
     dfg = df.groupby(Grouper(freq="1D", key="Datetime"))
 
     # have to sort on index because of unstable sort on values xref GH9212

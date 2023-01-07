@@ -6,7 +6,8 @@ import seaborn as sns
 from pandas import DataFrame
 
 setup_common = """from pandas import DataFrame
-df = DataFrame(np.random.randn(%d, 3), columns=list('abc'))
+from numpy.random import randn
+df = DataFrame(randn(%d, 3), columns=list('abc'))
 %s"""
 
 setup_with = "s = 'a + b * (c ** 2 + b ** 2 - a) / (a * c) ** 3'"

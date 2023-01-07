@@ -550,8 +550,7 @@ class TestDataFrameIndexingWhere:
 
         # DataFrame vs DataFrame
         d1 = df.copy().drop(1, axis=0)
-        # Explicit cast to avoid implicit cast when setting value to np.nan
-        expected = df.copy().astype("float")
+        expected = df.copy()
         expected.loc[1, :] = np.nan
 
         result = df.where(mask, d1)
@@ -670,8 +669,7 @@ class TestDataFrameIndexingWhere:
         df["b"] = df["b"].astype("category")
 
         result = df.where(df["a"] > 0)
-        # Explicitly cast to 'float' to avoid implicit cast when setting np.nan
-        expected = df.copy().astype({"a": "float"})
+        expected = df.copy()
         expected.loc[0, :] = np.nan
 
         tm.assert_equal(result, expected)

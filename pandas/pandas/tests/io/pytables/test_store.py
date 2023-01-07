@@ -911,7 +911,7 @@ def test_copy():
                     os.close(fd)
                 except (OSError, ValueError):
                     pass
-                os.remove(new_f)
+                os.remove(new_f)  # noqa: PDF008
 
         # new table
         df = tm.makeDataFrame()
