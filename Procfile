@@ -1,1 +1,1 @@
-web: streamlit run example4.py 
+web:streamlit run example4.py 
