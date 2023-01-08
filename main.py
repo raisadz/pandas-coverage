@@ -1,9 +1,15 @@
 import streamlit as st
 import os
 import sqlite3
+import re
+import subprocess
 
-
-database = 'output/pandas-dev/.coverage'
+output_files = os.listdir('output')
+pattern_commit = re.compile(r'coverage_(.+?)\.db')
+coverage_db = [i for i in output_files if pattern_commit.search(i)][0]
+pandas_commit = [pattern_commit.search(i).group(1) for i in output_files if pattern_commit.search(i)][0]
+#breakpoint()
+database = f'output/{coverage_db}'
 
 conn = sqlite3.connect(database)
 c = conn.cursor()
@@ -113,4 +119,8 @@ if selected_line is not None:
 	sidebar.markdown('The following tests executed it:\n')
 	sidebar.table({'test name': [convert_context_to_test(i[0]) for i in c.fetchall()]})
 
-sidebar.markdown("INFO: using commit a28cadbeb6f21da6c768b84473b3415e6efb3115")
+sidebar.markdown(f"INFO: using commit {pandas_commit}")
+
+
+date_output = subprocess.run(['git', 'log', '-n', '1', "--format='%cd'"], cwd='pandas', capture_output=True, text=True)
+sidebar.markdown(f"Last updated {date_output.stdout}")
