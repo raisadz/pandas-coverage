@@ -1,25 +1,11 @@
 import streamlit as st
-from io import StringIO
-from pprint import pprint
-import sqlite3
-from coverage.numbits import register_sqlite_functions
 import os
-import re
-
-import argparse
-import pathlib
-
-import numpy as np
-import streamlit_scrollable_textbox as stx
-import pandas as pd
-
-from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+import sqlite3
 
 
 database = 'output/pandas-dev/.coverage'
 
 conn = sqlite3.connect(database)
-register_sqlite_functions(conn)
 c = conn.cursor()
 
 def fixup_path(file):
@@ -31,25 +17,44 @@ def unfixup_path(file):
 def pandas_path(file):
         return f'pandas/{file}'
 
+def convert_context_to_test(context):
+    n = None
+    pieces = context.split('.')
+    for n in range(len(pieces)):
+        path = os.path.join('pandas', *pieces[:n]) + '.py'
+        if os.path.exists(path):
+            test = '::'.join([path[len('pandas/'):], *pieces[n:]])
+            break
+    else:
+        # Couldn't reconstruct test name
+        # Shouldn't really happen, this is just to not break the app
+        return context
+
+    return test
+
 filenames_query = (
         """
         select distinct file.path
         from file
+        where file.path not like '%tests%'
+        and file.path not like '%__init__%'
+        and file.path not like '%conftest%'
+        and file.path not like '%testing%'
+        and file.path not like '%.pxi'
         """
 )
 
 c.execute(filenames_query)
 filenames = c.fetchall()
 filenames = sorted(unfixup_path(i[0]) for i in filenames)
-filenames = [i for i in filenames if '__init__' not in i]
-regex = r'test_|\.pxi$'
-filenames = [i for i in filenames if not re.search(regex, i)]
 
 sidebar = st.sidebar
+sidebar.title('Who tests what in pandas?')
+sidebar.header(
+    'Ever wondered which tests executed a given line of code? '
+    'Enter the filename and line number below to find out!'
+)
 
-sidebar.markdown("Select the filename and the line number for which you would like to see all the executed tests")
-
-sidebar.markdown("Using commit: a28cadbeb6f21da6c768b84473b3415e6efb3115")
 
 file = sidebar.selectbox('filename', filenames)
 
@@ -70,26 +75,18 @@ c.execute(linenos_query, (fixup_path(file),))
 linenos = c.fetchall()
 linenos = sorted(lineno[0] for lineno in linenos)
 
-#lineno = st.selectbox('line number', linenos)
-
-
-#file_lines = open(pandas_path(file), 'r').readlines()
 code = open(pandas_path(file), 'r').read()
 
 lines = code.split('\n')
 
+st.text('Content of selected file:')
 markdown = ""
 for i, line in enumerate(lines):
     markdown += f"{i+1}: {line}\n"
 st.code(markdown)
-#stx.scrollableTextbox(markdown, height=800)
-
-#selected_line = st.selectbox("Select a line:", options=lines)
-#st.write(selected_line)
 
 selected_line = sidebar.selectbox("Select a line:", options=linenos)
 
-#selected_line = st.selectbox("Select a line:", options=np.arange(1, len(lines)+1))
 if selected_line is not None:
 	sidebar.markdown(
 		"You selected line: \n"
@@ -113,7 +110,7 @@ if selected_line is not None:
 	)
 
 	c.execute(QUERY, (selected_line, fixup_path(file)))
-	#sidebar.markdown( c.fetchall())
 	sidebar.markdown('The following tests executed it:\n')
-	sidebar.table({'test name': [i[0] for i in c.fetchall()]})
+	sidebar.table({'test name': [convert_context_to_test(i[0]) for i in c.fetchall()]})
 
+sidebar.markdown("INFO: using commit a28cadbeb6f21da6c768b84473b3415e6efb3115")
