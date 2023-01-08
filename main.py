@@ -4,6 +4,7 @@ from pprint import pprint
 import sqlite3
 from coverage.numbits import register_sqlite_functions
 import os
+import re
 
 import argparse
 import pathlib
@@ -41,8 +42,12 @@ c.execute(filenames_query)
 filenames = c.fetchall()
 filenames = sorted(unfixup_path(i[0]) for i in filenames)
 filenames = [i for i in filenames if '__init__' not in i]
+regex = r'^test_|\.pxi$'
+filenames = [i for i in filenames if not re.search(regex, i)]
 
 sidebar = st.sidebar
+
+sidebar.markdown("Select the filename and the line number for which you would like to see all the executed tests")
 
 sidebar.markdown("Using commit: a28cadbeb6f21da6c768b84473b3415e6efb3115")
 
