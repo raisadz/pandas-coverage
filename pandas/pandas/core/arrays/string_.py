@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Literal,
-)
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -56,11 +53,6 @@ from pandas.core.missing import isna
 
 if TYPE_CHECKING:
     import pyarrow
-
-    from pandas._typing import (
-        NumpySorter,
-        NumpyValueArrayLike,
-    )
 
     from pandas import Series
 
@@ -499,20 +491,6 @@ class StringArray(BaseStringArray, PandasArray):
         if deep:
             return result + lib.memory_usage_of_objects(self._ndarray)
         return result
-
-    @doc(ExtensionArray.searchsorted)
-    def searchsorted(
-        self,
-        value: NumpyValueArrayLike | ExtensionArray,
-        side: Literal["left", "right"] = "left",
-        sorter: NumpySorter = None,
-    ) -> npt.NDArray[np.intp] | np.intp:
-        if self._hasna:
-            raise ValueError(
-                "searchsorted requires array to be sorted, which is impossible "
-                "with NAs present."
-            )
-        return super().searchsorted(value=value, side=side, sorter=sorter)
 
     def _cmp_method(self, other, op):
         from pandas.arrays import BooleanArray

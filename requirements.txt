@@ -1,3 +1,4 @@
 streamlit==1.16.0
+gdown==4.6.0
 kaggle==1.5.12
 

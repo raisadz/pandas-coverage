@@ -840,12 +840,14 @@ class TestDataFrameSelectReindex:
         result = df.reindex([0, 1, 3], axis="index")
         tm.assert_frame_equal(result, expected)
 
-    def test_reindex_positional_raises(self):
+    def test_reindex_positional_warns(self):
         # https://github.com/pandas-dev/pandas/issues/12392
-        # Enforced in 2.0
         df = DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
-        with pytest.raises(TypeError, match=r".* is ambiguous."):
-            df.reindex([0, 1], ["A", "B", "C"])
+        expected = DataFrame({"A": [1.0, 2], "B": [4.0, 5], "C": [np.nan, np.nan]})
+        with tm.assert_produces_warning(FutureWarning):
+            result = df.reindex([0, 1], ["A", "B", "C"])
+
+        tm.assert_frame_equal(result, expected)
 
     def test_reindex_axis_style_raises(self):
         # https://github.com/pandas-dev/pandas/issues/12392
@@ -912,7 +914,9 @@ class TestDataFrameSelectReindex:
         for res in [res2, res3]:
             tm.assert_frame_equal(res1, res)
 
-        res1 = df.reindex(index=["b", "a"], columns=["e", "d"])
+        with tm.assert_produces_warning(FutureWarning) as m:
+            res1 = df.reindex(["b", "a"], ["e", "d"])
+        assert "reindex" in str(m[0].message)
         res2 = df.reindex(columns=["e", "d"], index=["b", "a"])
         res3 = df.reindex(labels=["b", "a"], axis=0).reindex(labels=["e", "d"], axis=1)
         for res in [res2, res3]:

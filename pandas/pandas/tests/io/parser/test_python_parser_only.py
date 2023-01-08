@@ -10,7 +10,6 @@ import csv
 from io import (
     BytesIO,
     StringIO,
-    TextIOWrapper,
 )
 from typing import Iterator
 
@@ -109,6 +108,8 @@ baz|7|8|9
 """
 
     if encoding is not None:
+        from io import TextIOWrapper
+
         data = data.encode(encoding)
         data = BytesIO(data)
         data = TextIOWrapper(data, encoding=encoding)

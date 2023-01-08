@@ -2,10 +2,7 @@
 Tests encoding functionality during parsing
 for all of the parsers defined in parsers.py
 """
-from io import (
-    BytesIO,
-    TextIOWrapper,
-)
+from io import BytesIO
 import os
 import tempfile
 import uuid
@@ -62,6 +59,8 @@ A,B,C
     utf8 = "utf-8"
 
     with tm.ensure_clean(path) as path:
+        from io import TextIOWrapper
+
         bytes_data = data.encode(encoding)
 
         with open(path, "wb") as f:

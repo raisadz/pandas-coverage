@@ -1,5 +1,3 @@
-import string
-
 import numpy as np
 import pytest
 
@@ -21,6 +19,8 @@ def test_adjoin():
 
 
 def test_repr_binary_type():
+    import string
+
     letters = string.ascii_letters
     try:
         raw = bytes(letters, encoding=cf.get_option("display.encoding"))

@@ -87,6 +87,7 @@ def test_get_revisions_no_failure(capsys):
                     {
                         "id": "flake8",
                         "additional_dependencies": [
+                            "pandas-dev-flaker==0.4.0",
                             "flake8-bugs==1.1.1",
                         ],
                     }
@@ -100,6 +101,7 @@ def test_get_revisions_no_failure(capsys):
                         "id": "yesqa",
                         "additional_dependencies": [
                             "flake8==0.1.1",
+                            "pandas-dev-flaker==0.4.0",
                             "flake8-bugs==1.1.1",
                         ],
                     }
@@ -114,6 +116,7 @@ def test_get_revisions_no_failure(capsys):
             {
                 "pip": [
                     "git+https://github.com/pydata/pydata-sphinx-theme.git@master",
+                    "pandas-dev-flaker==0.4.0",
                 ]
             },
         ]

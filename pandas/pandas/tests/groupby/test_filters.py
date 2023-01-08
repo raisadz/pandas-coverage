@@ -1,5 +1,3 @@
-from string import ascii_lowercase
-
 import numpy as np
 import pytest
 
@@ -194,6 +192,8 @@ def test_filter_against_workaround():
     tm.assert_series_equal(new_way.sort_values(), old_way.sort_values())
 
     # Set up DataFrame of ints, floats, strings.
+    from string import ascii_lowercase
+
     letters = np.array(list(ascii_lowercase))
     N = 1000
     random_letters = letters.take(np.random.randint(0, 26, N))

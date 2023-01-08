@@ -14,9 +14,7 @@ from pandas import (
 )
 
 
-def read_clipboard(
-    sep: str = r"\s+", use_nullable_dtypes: bool = False, **kwargs
-):  # pragma: no cover
+def read_clipboard(sep: str = r"\s+", **kwargs):  # pragma: no cover
     r"""
     Read text from clipboard and pass to read_csv.
 
@@ -25,21 +23,6 @@ def read_clipboard(
     sep : str, default '\s+'
         A string or regex delimiter. The default of '\s+' denotes
         one or more whitespace characters.
-
-    use_nullable_dtypes : bool = False
-        Whether or not to use nullable dtypes as default when reading data. If
-        set to True, nullable dtypes are used for all dtypes that have a nullable
-        implementation, even if no nulls are present.
-
-        The nullable dtype implementation can be configured by calling
-        ``pd.set_option("mode.dtype_backend", "pandas")`` to use
-        numpy-backed nullable dtypes or
-        ``pd.set_option("mode.dtype_backend", "pyarrow")`` to use
-        pyarrow-backed nullable dtypes (using ``pd.ArrowDtype``).
-        This is only implemented for the ``python``
-        engine.
-
-        .. versionadded:: 2.0
 
     **kwargs
         See read_csv for the full argument list.
@@ -102,9 +85,7 @@ def read_clipboard(
             stacklevel=find_stack_level(),
         )
 
-    return read_csv(
-        StringIO(text), sep=sep, use_nullable_dtypes=use_nullable_dtypes, **kwargs
-    )
+    return read_csv(StringIO(text), sep=sep, **kwargs)
 
 
 def to_clipboard(

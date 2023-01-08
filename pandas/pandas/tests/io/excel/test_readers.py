@@ -5,7 +5,6 @@ from datetime import (
 from functools import partial
 import os
 from pathlib import Path
-import platform
 from urllib.error import URLError
 from zipfile import BadZipFile
 
@@ -898,6 +897,8 @@ class TestReaders:
             url_table = pd.read_excel("file://localhost/" + localtable)
         except URLError:
             # fails on some systems
+            import platform
+
             platform_info = " ".join(platform.uname()).strip()
             pytest.skip(f"failing on {platform_info}")
 

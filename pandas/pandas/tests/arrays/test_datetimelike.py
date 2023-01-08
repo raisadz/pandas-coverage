@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import array
 import re
 
 import numpy as np
@@ -1347,6 +1346,9 @@ def array_likes(request):
     if name == "memoryview":
         data = memoryview(arr)
     elif name == "array":
+        # stdlib array
+        import array
+
         data = array.array("i", arr)
     elif name == "dask":
         import dask.array

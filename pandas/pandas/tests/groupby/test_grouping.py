@@ -1,10 +1,4 @@
-"""
-test where we are determining what we are grouping, or getting groups
-"""
-from datetime import (
-    date,
-    timedelta,
-)
+""" test where we are determining what we are grouping, or getting groups """
 
 import numpy as np
 import pytest
@@ -173,8 +167,14 @@ class TestGrouping:
         df.groupby(list("abcde"), group_keys=False).apply(lambda x: x)
 
     def test_grouper_multilevel_freq(self):
+
         # GH 7885
         # with level and freq specified in a Grouper
+        from datetime import (
+            date,
+            timedelta,
+        )
+
         d0 = date.today() - timedelta(days=14)
         dates = date_range(d0, date.today())
         date_index = MultiIndex.from_product([dates, dates], names=["foo", "bar"])
