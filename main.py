@@ -41,6 +41,7 @@ filenames_query = (
         and file.path not like '%conftest%'
         and file.path not like '%testing%'
         and file.path not like '%.pxi'
+        and file.path not like '%.pxd'
         """
 )
 
