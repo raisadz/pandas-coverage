@@ -42,7 +42,7 @@ c.execute(filenames_query)
 filenames = c.fetchall()
 filenames = sorted(unfixup_path(i[0]) for i in filenames)
 filenames = [i for i in filenames if '__init__' not in i]
-regex = r'^test_|\.pxi$'
+regex = r'test_|\.pxi$'
 filenames = [i for i in filenames if not re.search(regex, i)]
 
 sidebar = st.sidebar
