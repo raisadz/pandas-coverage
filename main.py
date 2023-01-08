@@ -3,7 +3,7 @@ import os
 import sqlite3
 
 
-database = 'output/pandas-dev/.coverage'
+database = 'output/coverage_f4136c0415.db'
 
 conn = sqlite3.connect(database)
 c = conn.cursor()
