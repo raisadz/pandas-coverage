@@ -122,5 +122,5 @@ if selected_line is not None:
 sidebar.markdown(f"INFO: using commit {pandas_commit}")
 
 
-date_output = subprocess.run(['git', 'log', '-n', '1', "--format='%cd'"], cwd='pandas', capture_output=True, text=True)
-sidebar.markdown(f"Last updated {date_output.stdout}")
+#date_output = subprocess.run(['git', 'log', '-n', '1', "--format='%cd'"], cwd='pandas', capture_output=True, text=True)
+#sidebar.markdown(f"Last updated {date_output.stdout}")
