@@ -113,4 +113,4 @@ if selected_line is not None:
 	sidebar.markdown('The following tests executed it:\n')
 	sidebar.table({'test name': [convert_context_to_test(i[0]) for i in c.fetchall()]})
 
-sidebar.markdown("INFO: using commit a28cadbeb6f21da6c768b84473b3415e6efb3115")
+sidebar.markdown("INFO: using commit f4136c0415, from Sat Jan 7 18:57:42")
