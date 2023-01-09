@@ -1,9 +1,19 @@
 import streamlit as st
 import os
 import sqlite3
+import re
+#import subprocess
 
+output_files = os.listdir(os.getcwd())
+pattern_commit = re.compile(r'coverage_(.+?)\.db')
+#coverage_db = [i for i in output_files if pattern_commit.search(i)][0]
+pandas_commit = [pattern_commit.search(i).group(1) for i in output_files if pattern_commit.search(i)][0]
+#breakpoint()
+#database = f'output/{coverage_db}'
 
-database = 'output/pandas-dev/.coverage'
+#database = 'output/pandas-dev/.coverage'
+
+database = [i for i in output_files if pattern_commit.search(i)][0]
 
 conn = sqlite3.connect(database)
 c = conn.cursor()
