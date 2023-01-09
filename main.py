@@ -92,7 +92,7 @@ if selected_line is not None:
 	sidebar.markdown(
 		"You selected line: \n"
 		"\n"
-		"```python\n"
+		"```\n"
 		f"{lines[selected_line-1]}\n"
 		"```"
 		"\n")
