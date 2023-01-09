@@ -84,7 +84,7 @@ st.text('Content of selected file:')
 markdown = ""
 for i, line in enumerate(lines):
     markdown += f"{i+1}: {line}\n"
-st.code(markdown)
+st.code(markdown, language=None)
 
 selected_line = sidebar.selectbox("Select a line:", options=linenos)
 
