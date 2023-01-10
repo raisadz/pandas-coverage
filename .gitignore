@@ -1,2 +1,4 @@
 *.pyc
 pandas
+aws_files
+coverage.db
