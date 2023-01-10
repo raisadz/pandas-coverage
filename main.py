@@ -15,7 +15,7 @@ if os.path.exists(DATABASE):
         pandas_commit = fl.read().split("\n")[0]
 else:
     with st.spinner('Downloading coverage database...'):
-        subprocess.run(['kaggle', 'kernels',  'output',  'marcogorelli/who-tests-what-in-pandas', '-p', '.'], check=True)
+        subprocess.run(['python', 'download_s3.py'], check=True)
     
     assert os.path.exists(DATABASE)
         
