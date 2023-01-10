@@ -18,19 +18,15 @@ database = [i for i in output_files if pattern_commit.search(i)][0]
 conn = sqlite3.connect(database)
 c = conn.cursor()
 
-@st.cache
 def fixup_path(file):
     return f'/kaggle/working/pandas-dev/{file}'
 
-@st.cache
 def unfixup_path(file):
     return file.replace('/kaggle/working/pandas-dev/', '')
 
-@st.cache
 def pandas_path(file):
         return f'pandas/{file}'
 
-@st.cache
 def convert_context_to_test(context):
     n = None
     pieces = context.split('.')
@@ -121,13 +117,14 @@ if selected_line is not None:
 
     QUERY = (
             """
-            select context.context
+            select distinct context.context
             from arc, context, file
             where arc.context_id = context.id
             and arc.file_id = file.id
             and arc.tono = ?
             and file.path = ?
             and context.context != ''
+            order by context.context
             """
     )
 
