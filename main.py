@@ -5,15 +5,18 @@ import re
 import subprocess
 
 output_files = os.listdir(os.getcwd())
-pattern_commit = re.compile(r'coverage_(.+?)\.db')
+#pattern_commit = re.compile(r'coverage_(.+?)\.db')
 #coverage_db = [i for i in output_files if pattern_commit.search(i)][0]
-pandas_commit = [pattern_commit.search(i).group(1) for i in output_files if pattern_commit.search(i)][0]
+#pandas_commit = [pattern_commit.search(i).group(1) for i in output_files if pattern_commit.search(i)][0]
 #breakpoint()
 #database = f'output/{coverage_db}'
 
 #database = 'output/pandas-dev/.coverage'
 
-database = [i for i in output_files if pattern_commit.search(i)][0]
+#database = [i for i in output_files if pattern_commit.search(i)][0]
+
+pandas_commit = open("metadata.txt", "r").read().split("\n")[0]
+database = 'coverage.db'
 
 conn = sqlite3.connect(database)
 c = conn.cursor()
