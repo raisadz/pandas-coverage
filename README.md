@@ -33,9 +33,9 @@ pip install -r requirements.txt
 
 Go to Kaggle, and generate a .kaggle.json file, save locally see [here](https://github.com/Kaggle/kaggle-api#api-credentials) for how to do that.
 
-Run the following line to download coverage.db and metadata.txt to `output` folder:
+Run the following line to download coverage.db and metadata.txt from kaggle:
 ```bash
-kaggle kernels output marcogorelli/who-tests-what-in-pandas -p output
+kaggle kernels output marcogorelli/who-tests-what-in-pandas -p .
 ```
 
 Run the app with 

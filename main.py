@@ -15,16 +15,7 @@ if os.path.exists(DATABASE):
         pandas_commit = fl.read().split("\n")[0]
 else:
     with st.spinner('Downloading coverage database...'):
-        import boto3
-
-        client = boto3.client("s3")
-        s3 = boto3.resource("s3")
-
-        bucket = s3.Bucket("pandas-coverage")
-
-        myfiles = list(bucket.objects.all())
-        for file in myfiles:
-            client.download_file("pandas-coverage", file.key, file.key)
+        subprocess.run(['kaggle', 'kernels',  'output',  'marcogorelli/who-tests-what-in-pandas', '-p', '.'], check=True)
     
     assert os.path.exists(DATABASE)
         
