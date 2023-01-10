@@ -1,5 +1,5 @@
 """
-This is the main function that creates a streamlit app on Heroku
+This is the main function that creates a streamlit app
 """
 
 import os
@@ -8,10 +8,23 @@ import subprocess
 
 import streamlit as st
 
-# output_files = os.listdir(os.getcwd())
 with open("metadata.txt", "r", encoding="utf-8") as fl:
     pandas_commit = fl.read().split("\n")[0]
 DATABASE = "coverage.db"
+
+if os.path.exists(DATABASE):
+    pass
+else:
+    import boto3
+
+    client = boto3.client("s3")
+    s3 = boto3.resource("s3")
+
+    bucket = s3.Bucket("pandas-coverage")
+
+    myfiles = list(bucket.objects.all())
+    for file in myfiles:
+        client.download_file("pandas-coverage", file.key, file.key)
 
 conn = sqlite3.connect(DATABASE)
 c = conn.cursor()
