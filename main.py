@@ -25,6 +25,18 @@ else:
     myfiles = list(bucket.objects.all())
     for file in myfiles:
         client.download_file("pandas-coverage", file.key, file.key)
+    
+    import subprocess
+
+    with open("metadata.txt", "r", encoding="utf-8") as fl:
+        pandas_commit = fl.read().split("\n")[0]
+
+    subprocess.run(
+        ["git", "clone", "https://github.com/pandas-dev/pandas.git", "--depth", "30"],
+        check=True,
+    )
+    subprocess.run(["git", "checkout", pandas_commit], cwd="pandas", check=True)
+
 
 conn = sqlite3.connect(DATABASE)
 c = conn.cursor()
