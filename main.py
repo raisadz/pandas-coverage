@@ -18,15 +18,19 @@ database = [i for i in output_files if pattern_commit.search(i)][0]
 conn = sqlite3.connect(database)
 c = conn.cursor()
 
+@st.cache
 def fixup_path(file):
     return f'/kaggle/working/pandas-dev/{file}'
 
+@st.cache
 def unfixup_path(file):
     return file.replace('/kaggle/working/pandas-dev/', '')
 
+@st.cache
 def pandas_path(file):
         return f'pandas/{file}'
 
+@st.cache
 def convert_context_to_test(context):
     n = None
     pieces = context.split('.')
@@ -42,22 +46,29 @@ def convert_context_to_test(context):
 
     return test
 
-filenames_query = (
+@st.cache
+def get_filenames():
+    filenames_query = (
         """
         select distinct file.path
-        from file
-        where file.path not like '%tests%'
+        from arc, context, file
+        where arc.context_id = context.id
+        and arc.file_id = file.id
+        and context.context != ''
+        and file.path not like '%tests%'
         and file.path not like '%__init__%'
         and file.path not like '%conftest%'
         and file.path not like '%testing%'
         and file.path not like '%.pxi'
         and file.path not like '%.pxd'
         """
-)
+    )
+    c.execute(filenames_query)
+    filenames = c.fetchall()
+    filenames = sorted(unfixup_path(i[0]) for i in filenames)
+    return filenames
 
-c.execute(filenames_query)
-filenames = c.fetchall()
-filenames = sorted(unfixup_path(i[0]) for i in filenames)
+filenames = get_filenames()
 
 sidebar = st.sidebar
 sidebar.title('Who tests what in pandas?')
@@ -99,30 +110,30 @@ st.code(markdown, language=None)
 selected_line = sidebar.selectbox("Select a line:", options=linenos)
 
 if selected_line is not None:
-	sidebar.markdown(
-		"You selected line: \n"
-		"\n"
-		"```\n"
-		f"{lines[selected_line-1]}\n"
-		"```"
-		"\n")
+    sidebar.markdown(
+        "You selected line: \n"
+        "\n"
+        "```\n"
+        f"{lines[selected_line-1]}\n"
+        "```"
+        "\n")
 
 
-	QUERY = (
-			"""
-			select context.context
-			from arc, context, file
-			where arc.context_id = context.id
-			and arc.file_id = file.id
-			and arc.tono = ?
-			and file.path = ?
-			and context.context != ''
-			"""
-	)
+    QUERY = (
+            """
+            select context.context
+            from arc, context, file
+            where arc.context_id = context.id
+            and arc.file_id = file.id
+            and arc.tono = ?
+            and file.path = ?
+            and context.context != ''
+            """
+    )
 
-	c.execute(QUERY, (selected_line, fixup_path(file)))
-	sidebar.markdown('The following tests executed it:\n')
-	sidebar.table({'test name': [convert_context_to_test(i[0]) for i in c.fetchall()]})
+    c.execute(QUERY, (selected_line, fixup_path(file)))
+    sidebar.markdown('The following tests executed it:\n')
+    sidebar.table({'test name': [convert_context_to_test(i[0]) for i in c.fetchall()]})
 
 #sidebar.markdown("INFO: using commit f4136c0415, from Sat Jan 7 18:57:42")
 sidebar.markdown(f"INFO: using commit {pandas_commit}")
