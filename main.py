@@ -1,42 +1,53 @@
-import streamlit as st
+"""
+This is the main function that creates a streamlit app on Heroku
+"""
+
 import os
 import sqlite3
-import re
 import subprocess
 
-output_files = os.listdir(os.getcwd())
-#pattern_commit = re.compile(r'coverage_(.+?)\.db')
-#coverage_db = [i for i in output_files if pattern_commit.search(i)][0]
-#pandas_commit = [pattern_commit.search(i).group(1) for i in output_files if pattern_commit.search(i)][0]
-#breakpoint()
-#database = f'output/{coverage_db}'
+import streamlit as st
 
-#database = 'output/pandas-dev/.coverage'
+# output_files = os.listdir(os.getcwd())
+with open("metadata.txt", "r", encoding="utf-8") as fl:
+    pandas_commit = fl.read().split("\n")[0]
+DATABASE = "coverage.db"
 
-#database = [i for i in output_files if pattern_commit.search(i)][0]
-
-pandas_commit = open("metadata.txt", "r").read().split("\n")[0]
-database = 'coverage.db'
-
-conn = sqlite3.connect(database)
+conn = sqlite3.connect(DATABASE)
 c = conn.cursor()
 
+
 def fixup_path(file):
-    return f'/kaggle/working/pandas-dev/{file}'
+    """
+    make a kaggle path
+    """
+    return f"/kaggle/working/pandas-dev/{file}"
+
 
 def unfixup_path(file):
-    return file.replace('/kaggle/working/pandas-dev/', '')
+    """
+    remove a kaggle path
+    """
+    return file.replace("/kaggle/working/pandas-dev/", "")
+
 
 def pandas_path(file):
-        return f'pandas/{file}'
+    """
+    add a pandas path
+    """
+    return f"pandas/{file}"
+
 
 def convert_context_to_test(context):
-    n = None
-    pieces = context.split('.')
-    for n in range(len(pieces)):
-        path = os.path.join('pandas', *pieces[:n]) + '.py'
+    """
+    change the test names so that they can be run by pytest
+    """
+    n_range = None
+    pieces = context.split(".")
+    for n_range in range(len(pieces)):
+        path = os.path.join("pandas", *pieces[:n_range]) + ".py"
         if os.path.exists(path):
-            test = '::'.join([path[len('pandas/'):], *pieces[n:]])
+            test = "::".join([path[len("pandas/") :], *pieces[n_range:]])
             break
     else:
         # Couldn't reconstruct test name
@@ -45,10 +56,13 @@ def convert_context_to_test(context):
 
     return test
 
+
 @st.cache
 def get_filenames():
-    filenames_query = (
-        """
+    """
+    get the tests for the selected file and line
+    """
+    filenames_query = """
         select distinct file.path
         from arc, context, file
         where arc.context_id = context.id
@@ -61,27 +75,26 @@ def get_filenames():
         and file.path not like '%.pxi'
         and file.path not like '%.pxd'
         """
-    )
     c.execute(filenames_query)
     filenames = c.fetchall()
     filenames = sorted(unfixup_path(i[0]) for i in filenames)
     return filenames
 
-filenames = get_filenames()
+
+test_filenames = get_filenames()
 
 sidebar = st.sidebar
-sidebar.title('Who tests what in pandas?')
+sidebar.title("Who tests what in pandas?")
 sidebar.header(
-    'Ever wondered which tests executed a given line of code? '
-    'Enter the filename and line number below to find out!'
+    "Ever wondered which tests executed a given line of code? "
+    "Enter the filename and line number below to find out!"
 )
 
 
-file = sidebar.selectbox('filename', filenames)
+selected_file = sidebar.selectbox("filename", test_filenames)
 
 
-linenos_query = (
-       """
+LINENOS_QUERY = """
        select distinct arc.tono
        from file, arc, context
        where arc.file_id = file.id
@@ -90,36 +103,30 @@ linenos_query = (
        and arc.tono > 0
        and context.context != ''
        """
-)
 
-c.execute(linenos_query, (fixup_path(file),))
+c.execute(LINENOS_QUERY, (fixup_path(selected_file),))
 linenos = c.fetchall()
 linenos = sorted(lineno[0] for lineno in linenos)
 
-code = open(pandas_path(file), 'r').read()
+with open(pandas_path(selected_file), "r", encoding="utf-8") as pandas_fl:
+    code = pandas_fl.read()
 
-lines = code.split('\n')
+lines = code.split("\n")
 
-st.text('Content of selected file:')
-markdown = ""
+st.text("Content of selected file:")
+CONTENT = ""
 for i, line in enumerate(lines):
-    markdown += f"{i+1}: {line}\n"
-st.code(markdown, language=None)
+    CONTENT += f"{i+1}: {line}\n"
+st.code(CONTENT, language=None)
 
 selected_line = sidebar.selectbox("Select a line:", options=linenos)
 
 if selected_line is not None:
     sidebar.markdown(
-        "You selected line: \n"
-        "\n"
-        "```\n"
-        f"{lines[selected_line-1]}\n"
-        "```"
-        "\n")
+        "You selected line: \n" "\n" "```\n" f"{lines[selected_line-1]}\n" "```" "\n"
+    )
 
-
-    QUERY = (
-            """
+    QUERY = """
             select distinct context.context
             from arc, context, file
             where arc.context_id = context.id
@@ -129,15 +136,19 @@ if selected_line is not None:
             and context.context != ''
             order by context.context
             """
-    )
 
-    c.execute(QUERY, (selected_line, fixup_path(file)))
-    sidebar.markdown('The following tests executed it:\n')
-    sidebar.table({'test name': [convert_context_to_test(i[0]) for i in c.fetchall()]})
+    c.execute(QUERY, (selected_line, fixup_path(selected_file)))
+    sidebar.markdown("The following tests executed it:\n")
+    sidebar.table({"test name": [convert_context_to_test(i[0]) for i in c.fetchall()]})
 
-#sidebar.markdown("INFO: using commit f4136c0415, from Sat Jan 7 18:57:42")
 sidebar.markdown(f"INFO: using commit {pandas_commit}")
 
 
-date_output = subprocess.run(['git', 'log', '-n', '1', "--format='%cd'"], cwd='pandas', capture_output=True, text=True)
+date_output = subprocess.run(
+    ["git", "log", "-n", "1", "--format='%cd'"],
+    cwd="pandas",
+    capture_output=True,
+    text=True,
+    check=True,
+)
 sidebar.markdown(f"Last updated {date_output.stdout}")
