@@ -14,21 +14,16 @@ if os.path.exists(DATABASE):
     with open("metadata.txt", "r", encoding="utf-8") as fl:
         pandas_commit = fl.read().split("\n")[0]
 else:
-    with st.spinner('Downloading coverage database...'):
-        subprocess.run(['python', 'download_s3.py'], check=True)
-    
+    with st.spinner("Downloading coverage database..."):
+        subprocess.run(["python", "download_s3.py"], check=True)
+
     assert os.path.exists(DATABASE)
-        
-    with st.spinner('Cloning pandas...'):
 
-        import subprocess
-
+    with st.spinner("Cloning pandas..."):
         with open("metadata.txt", "r", encoding="utf-8") as fl:
             pandas_commit = fl.read().split("\n")[0]
 
         subprocess.run(["git", "checkout", pandas_commit], cwd="pandas", check=True)
-
-
 
 
 conn = sqlite3.connect(DATABASE)
