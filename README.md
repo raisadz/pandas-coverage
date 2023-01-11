@@ -40,6 +40,6 @@ kaggle kernels output marcogorelli/who-tests-what-in-pandas -p .
 
 Run the app with 
 ```bash
-streamlit run main.py
+python clone_pandas.py && streamlit run main.py
 ```
 
