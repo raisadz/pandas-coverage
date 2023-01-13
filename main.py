@@ -5,6 +5,7 @@ This is the main function that creates a streamlit app
 import os
 import sqlite3
 import subprocess
+import re
 
 import streamlit as st
 
@@ -59,7 +60,7 @@ def convert_context_to_test(context):
     pieces = context.split(".")
     for n_range in range(len(pieces)):
         path = os.path.join("pandas", *pieces[:n_range]) + ".py"
-        if os.path.exists(path):
+        if os.path.exists(path) and all([i.lower().startswith('test') for i in pieces[n_range:]]):
             test = "::".join([path[len("pandas/") :], *pieces[n_range:]])
             break
     else:
@@ -147,11 +148,24 @@ if selected_line is not None:
             and arc.tono = ?
             and file.path = ?
             and context.context != ''
+            and context.context not like 'hypothesis%'
             order by context.context
             """
 
     c.execute(QUERY, (selected_line, fixup_path(selected_file)))
     sidebar.markdown("The following tests executed it:\n")
+    # CSS to inject contained in a string
+    # https://docs.streamlit.io/knowledge-base/using-streamlit/hide-row-indices-displaying-dataframe
+
+    hide_table_row_index = """
+                <style>
+                thead tr th:first-child {display:none}
+                tbody th {display:none}
+                </style>
+                """
+
+    # Inject CSS with Markdown
+    st.markdown(hide_table_row_index, unsafe_allow_html=True)
     sidebar.table({"test name": [convert_context_to_test(i[0]) for i in c.fetchall()]})
 
 sidebar.markdown(f"INFO: using commit {pandas_commit}")
