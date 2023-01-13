@@ -166,5 +166,5 @@ date_output = subprocess.run(
 )
 sidebar.markdown(f"Last updated {date_output.stdout}")
 
-git_link="Edit me on [GitHub](https://github.com/raisadz/pandas-coverage)"
-sidebar.markdown(git_link, unsafe_allow_html=True)
+GIT_LINK="Edit me on [GitHub](https://github.com/raisadz/pandas-coverage)"
+sidebar.markdown(GIT_LINK, unsafe_allow_html=True)
