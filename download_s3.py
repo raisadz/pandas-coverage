@@ -2,13 +2,10 @@
 download data from aws s3 bucket pandas-coverage
 """
 
-import boto3
+import gdown
 
-client = boto3.client("s3")
-s3 = boto3.resource("s3")
+#url = 'https://drive.google.com/uc?id=0B9P1L--7Wd2vNm9zMTJWOGxobkU'
+url = 'https://drive.google.com/uc?export=download&id=1swBRvmM79dETlHQQ6ZRRTubHcPGar-vo'
+output = 'coverage.db'
+gdown.download(url, output, quiet=False)
 
-bucket = s3.Bucket("pandas-coverage")
-
-myfiles = list(bucket.objects.all())
-for file in myfiles:
-    client.download_file("pandas-coverage", file.key, file.key)
