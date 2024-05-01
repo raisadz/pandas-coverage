@@ -1,6 +1,6 @@
 # Who tests what in pandas?
 
-Ever wondered which tests executed a given line of code? Enter the filename and line number in this [app](https://pandas-coverage.herokuapp.com/) to find out!
+Ever wondered which tests executed a given line of code? Enter the filename and line number in this app to find out!
 
 ## Installation
 
